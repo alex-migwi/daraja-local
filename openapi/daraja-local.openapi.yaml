@@ -1,0 +1,164 @@
+openapi: 3.1.0
+info:
+  title: Daraja Local API
+  version: 0.1.0
+paths:
+  /health:
+    get:
+      responses:
+        "200":
+          description: Health status
+  /version:
+    get:
+      responses:
+        "200":
+          description: Package metadata
+  /oauth/v1/generate:
+    get:
+      responses:
+        "200":
+          description: Fake Daraja OAuth token
+        "401":
+          description: Missing Basic Auth
+  /mpesa/stkpush/v1/processrequest:
+    post:
+      responses:
+        "200":
+          description: STK request accepted
+        "400":
+          description: Invalid request
+  /mpesa/stkpushquery/v1/query:
+    post:
+      responses:
+        "200":
+          description: STK transaction status
+        "404":
+          description: Transaction not found
+  /mpesa/c2b/v1/registerurl:
+    post:
+      responses:
+        "200":
+          description: C2B URLs registered
+        "400":
+          description: Invalid C2B URL registration request
+  /mpesa/c2b/v1/simulate:
+    post:
+      responses:
+        "200":
+          description: C2B payment simulated and confirmation callback sent
+        "404":
+          description: C2B URLs not registered for shortcode
+  /mpesa/b2c/v1/paymentrequest:
+    post:
+      responses:
+        "200":
+          description: B2C payment request accepted
+        "400":
+          description: Invalid B2C request
+  /mpesa/b2b/v1/paymentrequest:
+    post:
+      responses:
+        "200":
+          description: B2B payment request accepted
+        "400":
+          description: Invalid B2B request
+  /mpesa/b2caccounttopup/v1/request:
+    post:
+      responses:
+        "200":
+          description: B2C account top-up request accepted
+        "400":
+          description: Invalid B2C account top-up request
+  /simulator/transactions:
+    get:
+      responses:
+        "200":
+          description: Transaction list
+  /simulator/transactions/{id}:
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Transaction detail
+  /simulator/stk/{id}/approve:
+    post:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Transaction approved and callback sent
+  /simulator/stk/{id}/fail:
+    post:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Transaction failed and callback sent
+  /simulator/stk/{id}/timeout:
+    post:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Transaction timed out and callback sent
+  /simulator/payments/{id}/approve:
+    post:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Async payment approved and ResultURL callback sent
+  /simulator/payments/{id}/fail:
+    post:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Async payment failed and ResultURL callback sent
+  /simulator/payments/{id}/timeout:
+    post:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Async payment timed out and ResultURL callback sent
+  /simulator/payments/{id}/replay-callback:
+    post:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Async payment callback replayed
