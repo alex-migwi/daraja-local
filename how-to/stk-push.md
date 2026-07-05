@@ -37,35 +37,40 @@ POST /mpesa/stkpush/v1/processrequest
 
 ## Example Request
 
+Send a `POST` request to the `/mpesa/stkpush/v1/processrequest` endpoint. 
+Replace `<ACCESS_TOKEN>` with the token generated from the OAuth endpoint.
+Replace `<CALLBACK_URL_ENDPOINT>` with your server callback url in development. The sandbox will call this url to simulate a call from Daraja servers.
+Replace `<GENERATED_BASE64_PASSWORD>` with your generated Base64 encoded string Format: `base64.encode(Shortcode+Passkey+Timestamp).`
+
 ```bash
-curl -X POST http://127.0.0.1:8080/mpesa/stkpush/v1/processrequest ^
-  -H "Content-Type: application/json" ^
-  -d "{\"BusinessShortCode\":\"174379\",\"Password\":\"password\",\"Timestamp\":\"20260603101010\",\"TransactionType\":\"CustomerPayBillOnline\",\"Amount\":100,\"PartyA\":\"254712345678\",\"PartyB\":\"174379\",\"PhoneNumber\":\"254712345678\",\"CallBackURL\":\"http://127.0.0.1:3000/callback\",\"AccountReference\":\"INV-001\",\"TransactionDesc\":\"Test payment\"}"
+curl -X POST http://127.0.0.1:8080/mpesa/stkpush/v1/processrequest \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" \
+  -d '{
+    "BusinessShortCode": "174379",
+    "Password": "<GENERATED_BASE64_PASSWORD>>",
+    "Timestamp": "20260705120000",
+    "TransactionType": "CustomerPayBillOnline",
+    "Amount": 100,
+    "PartyA": "254712345678",
+    "PartyB": "174379",
+    "PhoneNumber": "254712345678",
+    "CallBackURL": "YOUR_CALLBACK_URL_ENDPOINT",
+    "AccountReference": "INV-001",
+    "TransactionDesc": "Test payment"
+  }'   
 ```
 
-PowerShell alternative:
-
-```powershell
-$body = @{
-  BusinessShortCode = "174379"
-  Password = "password"
-  Timestamp = "20260603101010"
-  TransactionType = "CustomerPayBillOnline"
-  Amount = 100
-  PartyA = "254712345678"
-  PartyB = "174379"
-  PhoneNumber = "254712345678"
-  CallBackURL = "http://127.0.0.1:3000/callback"
-  AccountReference = "INV-001"
-  TransactionDesc = "Test payment"
-} | ConvertTo-Json
-
-Invoke-RestMethod `
-  -Method Post `
-  -Uri "http://127.0.0.1:8080/mpesa/stkpush/v1/processrequest" `
-  -ContentType "application/json" `
-  -Body $body
+## Important to note
+- How to generate the missing values:
+1. Timestamp: Use the current date/time (e.g., if now is July 5, 2026, 12:30:00, then 20260705123000). 
+2. Password: Base64 encode the string: 174379 + YOUR_PASSKEY + 20260705123000.
+Example 
+```javascript
+Buffer.from("174379" + "your_passkey" + "20260705123000").toString("base64") 
 ```
+> Without these fields, the Safaricom API (and your local mock) will reject the request as unauthorized or malformed.
+
 
 ## Example Response
 

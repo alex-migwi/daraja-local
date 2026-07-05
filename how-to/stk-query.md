@@ -29,10 +29,23 @@ POST /mpesa/stkpushquery/v1/query
 ## Example
 
 ```bash
-curl -X POST http://127.0.0.1:8080/mpesa/stkpushquery/v1/query ^
-  -H "Content-Type: application/json" ^
-  -d "{\"CheckoutRequestID\":\"ws_CO_1760000000000_abcd1234ef56\"}"
+curl -X POST http://127.0.0.1:8080/mpesa/stkpushquery/v1/query \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer daraja-local-token-7e14f635-2752-418b-9fd9-4ba87bbf0e23" \
+  -d "{\"BusinessShortCode\":\"174379\",\"Password\":\"GENERATED_BASE64_PASSWORD\",\"Timestamp\":\"20260705123000\",\"CheckoutRequestID\":\"ws_CO_1760000000000_abcd1234ef56\"}"   
 ```
+
+## Important to note
+- How to generate the missing values:
+1. Timestamp: Use the current date/time (e.g., if now is July 5, 2026, 12:30:00, then 20260705123000). 
+2. Password: Base64 encode the string: 174379 + YOUR_PASSKEY + 20260705123000.
+Example 
+```javascript
+Buffer.from("174379" + "your_passkey" + "20260705123000").toString("base64") 
+```
+> Without these fields, the Safaricom API (and your local mock) will reject the request as unauthorized or malformed.
+
+
 
 ## Pending Response
 

@@ -71,7 +71,7 @@ The `:id` value is the `CheckoutRequestID`.
 ## Approve
 
 ```bash
-curl -X POST http://127.0.0.1:8080/simulator/stk/ws_CO_1760000000000_abcd1234ef56/approve
+curl -X POST http://127.0.0.1:8080/simulator/stk/ws_CO_1783264676434_f82d0085e2c8/approve
 ```
 
 Final state:

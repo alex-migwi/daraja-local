@@ -29,7 +29,7 @@ GET /oauth/v1/generate
 ## Example
 
 ```bash
-curl -u consumer-key:consumer-secret http://127.0.0.1:8080/oauth/v1/generate
+curl -X GET "http://127.0.0.1:8080/oauth/v1/generate?grant_type=client_credentials" -H "Authorization: Basic Y29uc3VtZXJfa2V5OmNvbnN1bWVyX3NlY3JldA=="
 ```
 
 Expected response:
@@ -46,6 +46,10 @@ Expected response:
 - Credentials are not checked against Safaricom.
 - Daraja Local never calls real Safaricom APIs.
 - The endpoint requires a Basic Auth header so client applications exercise the same authentication flow they use with Daraja.
+- The default `> curl -X GET "http://127.0.0.1:8080/oauth/v1/generate?grant_type=client_credentials" -H "Authorization: Basic Y29uc3VtZXJfa2V5OmNvbnN1bWVyX3NlY3JldA=="`
+
+- You need to set the string `consumer-key` and `consumer-secret`, in the `.env` file so that the sandbox can crosscheck if you have encoded it into `Base64`, correctly by decodiing the HTTP `header: Authorization: Basic <base64-encoded-string>` and comparing the resulting values.
+
 
 ## Configure Token Expiry
 
