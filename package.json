@@ -1,13 +1,17 @@
 {
   "name": "daraja-local",
   "version": "0.1.0",
-  "description": "Local emulator for Safaricom Daraja APIs.",
+  "description": "An unofficial Local emulator for Safaricom Daraja APIs. Develop and test M-PESA integrations locally.",
+  "author": {
+    "name": "Job Alex Muturi",
+    "email": "alex.migwi@gmail.com"
+  },
   "type": "module",
   "bin": {
     "daraja-local": "./dist/src/cli/index.js"
   },
   "scripts": {
-    "dev": "tsx src/cli/index.ts start",
+    "dev": "tsx watch src/cli/index.ts start",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/src/cli/index.js start",
     "typecheck": "tsc -p tsconfig.json --noEmit",
