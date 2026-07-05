@@ -2,20 +2,43 @@ import { z } from "zod";
 import { AppError } from "../../shared/errors.js";
 import type { CallbackDispatcher } from "../callbacks/callback-dispatcher.js";
 import type { TransactionService } from "../transactions/transaction.service.js";
+import { includes } from "zod/v4";
+import { TransactionValidationErrorCode } from "../transactions/transaction.types.js";
+import { exit } from "process";
 
+// Schema for C2B URL Registration
 const registerUrlSchema = z.object({
   ShortCode: z.string().min(1),
-  ResponseType: z.enum(["Completed", "Cancelled"]).default("Completed"),
+  ResponseType: z.enum(["Completed", "Cancelled"]).default("Completed"), // "Completed" skips validation; "Cancelled" requires it
+
   ConfirmationURL: z.string().url(),
   ValidationURL: z.string().url()
 });
 
+// Schema for C2B Simulation Requests
 const simulateSchema = z.object({
   ShortCode: z.string().min(1),
   CommandID: z.string().min(1),
   Amount: z.coerce.number().positive(),
   Msisdn: z.string().min(1),
   BillRefNumber: z.string().min(1).optional()
+});
+
+// Schema for C2B Callback Payloads
+const c2bCallbackSchema = z.object({
+  TransactionType: z.string(),
+  TransID: z.string(),
+  TransTime: z.string(),
+  TransAmount: z.number(),
+  BusinessShortCode: z.string(),
+  BillRefNumber: z.string(),
+  InvoiceNumber: z.string().optional(),
+  OrgAccountBalance: z.number(),
+  ThirdPartyTransID: z.string().optional(),
+  MSISDN: z.string(),
+  FirstName: z.string().optional(),
+  MiddleName: z.string().optional(),
+  LastName: z.string().optional()
 });
 
 export type C2BUrlRegistration = z.infer<typeof registerUrlSchema>;
@@ -81,6 +104,17 @@ export class C2BService {
       LastName: "Simulator"
     };
 
+    const confirmationType = registration.ResponseType ?? "Completed";
+    if (confirmationType === "Cancelled") {
+      const attempt = await this.dispatcher.dispatch(registration.ValidationURL, payload);
+      const callbackPayload = attempt?.payload as Record<string, unknown> | undefined;
+      
+      if (TransactionValidationErrorCode.includes(callbackPayload?.["ResultCode"] as string)) {
+        // no-op 
+        return;
+      }
+    }
+    
     const attempt = await this.dispatcher.dispatch(registration.ConfirmationURL, payload);
     await this.transactions.addCallbackAttempt(transaction.trackingId, attempt);
 

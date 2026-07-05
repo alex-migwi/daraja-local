@@ -1,6 +1,8 @@
 export type TransactionStatus = "PENDING" | "SUCCESS" | "FAILED" | "TIMEOUT";
 export type TransactionKind = "STK" | "C2B" | "B2C" | "B2B" | "B2C_ACCOUNT_TOPUP";
 
+export const TransactionValidationErrorCode = ["C2B00011" , "C2B00012" , "C2B00013" , "C2B00014" , "C2B00015" , "C2B00016"];
+
 export type StkRequestPayload = {
   BusinessShortCode: string;
   Password: string;
@@ -14,6 +16,7 @@ export type StkRequestPayload = {
   AccountReference: string;
   TransactionDesc: string;
 };
+
 
 export type CallbackAttempt = {
   id: string;
