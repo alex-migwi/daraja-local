@@ -32,7 +32,8 @@ for (const command of ["approve", "fail", "timeout"] as const) {
     .option("--base-url <url>", "Daraja Local URL", process.env.DARAJA_LOCAL_URL ?? "http://127.0.0.1:8080")
     .action(async (checkoutRequestId: string, options) => {
       const data = await requestJson(`${options.baseUrl}/simulator/stk/${checkoutRequestId}/${command}`, {
-        method: "POST"
+        method: "POST",
+        body: JSON.stringify({})
       });
       console.log(JSON.stringify(data, null, 2));
     });
@@ -46,7 +47,8 @@ for (const command of ["approve-payment", "fail-payment", "timeout-payment"] as 
     .option("--base-url <url>", "Daraja Local URL", process.env.DARAJA_LOCAL_URL ?? "http://127.0.0.1:8080")
     .action(async (conversationId: string, options) => {
       const data = await requestJson(`${options.baseUrl}/simulator/payments/${conversationId}/${action}`, {
-        method: "POST"
+        method: "POST",
+        body: JSON.stringify({})
       });
       console.log(JSON.stringify(data, null, 2));
     });
