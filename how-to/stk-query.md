@@ -31,7 +31,7 @@ POST /mpesa/stkpushquery/v1/query
 ```bash
 curl -X POST http://127.0.0.1:8080/mpesa/stkpushquery/v1/query \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer daraja-local-token-7e14f635-2752-418b-9fd9-4ba87bbf0e23" \
+  -H "Authorization: Bearer <ACCESS_TOKEN_FROM_OAUTH_REQUEST>" \
   -d "{\"BusinessShortCode\":\"174379\",\"Password\":\"GENERATED_BASE64_PASSWORD\",\"Timestamp\":\"20260705123000\",\"CheckoutRequestID\":\"ws_CO_1760000000000_abcd1234ef56\"}"   
 ```
 

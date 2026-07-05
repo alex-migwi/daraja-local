@@ -29,21 +29,35 @@ C2B covers customer-initiated PayBill or Till payments. In real Daraja, the cust
 ## Register URLs
 
 ```bash
-curl -X POST http://127.0.0.1:8080/mpesa/c2b/v1/registerurl ^
-  -H "Content-Type: application/json" ^
-  -d "{\"ShortCode\":\"600000\",\"ResponseType\":\"Completed\",\"ConfirmationURL\":\"http://127.0.0.1:3000/c2b/confirmation\",\"ValidationURL\":\"http://127.0.0.1:3000/c2b/validation\"}"
+curl -X POST http://127.0.0.1:8080/mpesa/c2b/v1/registerurl \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <OAUTH_ACCESS_TOKEN>" \
+  -d '{
+      "ShortCode":"600000",
+      "ResponseType":"Completed",
+      "ConfirmationURL":"<YOUR_SERVER_CONFIRMATION_URL>",
+      "ValidationURL":"<YOUR_SERVER_VALIDATION_URL>
+   }'
 ```
+
+> If validation is critical (e.g., you must verify the account number or amount before accepting money), you must change your registration ResponseType from "Completed" to "Cancelled".
+
 
 ## Simulate Customer Payment
 
 ```bash
-curl -X POST http://127.0.0.1:8080/mpesa/c2b/v1/simulate ^
-  -H "Content-Type: application/json" ^
-  -d "{\"ShortCode\":\"600000\",\"CommandID\":\"CustomerPayBillOnline\",\"Amount\":250,\"Msisdn\":\"254712345678\",\"BillRefNumber\":\"INV-250\"}"
+curl -X POST http://127.0.0.1:8080/mpesa/c2b/v1/simulate \
+   -H "Content-Type: application/json" \
+   -d '{
+      "ShortCode":"600000",
+      "CommandID":"CustomerPayBillOnline",
+      "Amount":250,"Msisdn":"254712345678",
+      "BillRefNumber":"INV-250
+   }''
 ```
 
 ## Notes
 
 - URLs are stored in memory and disappear when the emulator restarts.
 - The current MVP sends the confirmation callback directly.
-- Validation callback behavior can be expanded later for accept/reject scenarios.
+- No need for ACCESS_TOKEN on simulate since we are not calling Online Sandbox Daraja Server. Just make sure you have if you decide to simulate against the Online Sandbox 
