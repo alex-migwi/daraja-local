@@ -26,13 +26,14 @@ const appConfigSchema = z.object({
 });
 
 export function loadConfig(overrides: Partial<AppConfig> = {}): AppConfig {
+  const environment = loadEnvironmentConfig();
   const config = {
-    host: overrides.host ?? process.env.DARAJA_LOCAL_HOST ?? "127.0.0.1",
-    port: overrides.port ?? Number(process.env.DARAJA_LOCAL_PORT ?? 8080),
-    tokenExpiresInSeconds: overrides.tokenExpiresInSeconds ?? Number(process.env.DARAJA_LOCAL_TOKEN_EXPIRES_IN ?? 3599),
-    callbackTimeoutMs: overrides.callbackTimeoutMs ?? Number(process.env.DARAJA_LOCAL_CALLBACK_TIMEOUT_MS ?? 5000),
-    consumerKey: overrides.consumerKey ?? process.env.CONSUMER_KEY ?? "consumer_key",
-    consumerSecret: overrides.consumerSecret ?? process.env.CONSUMER_SECRET ?? "consumer_secret"
+    host: overrides.host ?? environment.host,
+    port: overrides.port ?? environment.port,
+    tokenExpiresInSeconds: overrides.tokenExpiresInSeconds ?? environment.tokenExpiresInSeconds,
+    callbackTimeoutMs: overrides.callbackTimeoutMs ?? environment.callbackTimeoutMs,
+    consumerKey: overrides.consumerKey ?? environment.consumerKey,
+    consumerSecret: overrides.consumerSecret ?? environment.consumerSecret
   };
 
   const result = appConfigSchema.safeParse(config);
@@ -44,4 +45,15 @@ export function loadConfig(overrides: Partial<AppConfig> = {}): AppConfig {
   }
 
   return result.data;
+}
+
+function loadEnvironmentConfig(): AppConfig {
+  return {
+    host: process.env.DARAJA_LOCAL_HOST ?? "127.0.0.1",
+    port: Number(process.env.DARAJA_LOCAL_PORT ?? 8080),
+    tokenExpiresInSeconds: Number(process.env.DARAJA_LOCAL_TOKEN_EXPIRES_IN ?? 3599),
+    callbackTimeoutMs: Number(process.env.DARAJA_LOCAL_CALLBACK_TIMEOUT_MS ?? 5000),
+    consumerKey: process.env.CONSUMER_KEY ?? "consumer_key",
+    consumerSecret: process.env.CONSUMER_SECRET ?? "consumer_secret"
+  };
 }
