@@ -104,6 +104,9 @@ Detailed feature guides live in [how-to/README.md](./how-to/README.md).
 - `POST /mpesa/b2c/v1/paymentrequest`
 - `POST /mpesa/b2b/v1/paymentrequest`
 - `POST /mpesa/b2caccounttopup/v1/request` (experimental; verify product support in the active Daraja portal)
+
+### Simulator Endpoints
+
 - `GET /simulator/transactions`
 - `GET /simulator/transactions/:id`
 - `POST /simulator/stk/:id/approve`
