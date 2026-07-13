@@ -29,6 +29,8 @@
     "start": "node dist/src/cli/index.js start",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
+    "test:changed": "vitest run --changed",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest"
   },
   "dependencies": {
@@ -39,6 +41,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.14.10",
+    "@vitest/coverage-v8": "^4.1.10",
     "tsx": "^4.16.2",
     "typescript": "^5.5.3",
     "vitest": "^4.1.10"
