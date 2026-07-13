@@ -1,5 +1,8 @@
 # Daraja Local How-To Guides
 
+[![Daraja Local](/images/daraja-local-poster.png "Unofficial local sandbox for M-Pesa Daraja API integrations. Build, test, and debug STK Push flows, callbacks, transaction states, and payment edge cases locally before going live.")](https://daraja-local.chanansystems.co.ke)
+
+
 This folder contains practical guides for using Daraja Local during local M-Pesa Daraja development.
 
 ## Guides
