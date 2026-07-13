@@ -47,15 +47,15 @@ curl -X POST http://127.0.0.1:8080/mpesa/stkpush/v1/processrequest \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer <ACCESS_TOKEN>" \
   -d '{
-    "BusinessShortCode": "174379",
-    "Password": "<GENERATED_BASE64_PASSWORD>>",
+    "BusinessShortCode": 174379,
+    "Password": "<GENERATED_BASE64_PASSWORD>",
     "Timestamp": "20260705120000",
     "TransactionType": "CustomerPayBillOnline",
     "Amount": 100,
-    "PartyA": "254712345678",
-    "PartyB": "174379",
-    "PhoneNumber": "254712345678",
-    "CallBackURL": "YOUR_CALLBACK_URL_ENDPOINT",
+    "PartyA": 254712345678,
+    "PartyB": 174379,
+    "PhoneNumber": 254712345678,
+    "CallBackURL": "http://127.0.0.1:3000/mpesa/callback",
     "AccountReference": "INV-001",
     "TransactionDesc": "Test payment"
   }'   
@@ -69,7 +69,7 @@ Example
 ```javascript
 Buffer.from("174379" + "your_passkey" + "20260705123000").toString("base64") 
 ```
-> Without these fields, the Safaricom API (and your local mock) will reject the request as unauthorized or malformed.
+Safaricom validates the password construction. Daraja Local validates only that the field is present because it does not hold a production passkey.
 
 
 ## Example Response
@@ -105,4 +105,6 @@ Daraja Local rejects:
 - missing required fields
 - invalid callback URLs
 - non-positive amounts
+- fractional amounts and non-numeric JSON values
+- string values for shortcode, party, and phone-number fields
 - malformed JSON

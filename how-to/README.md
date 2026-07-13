@@ -1,6 +1,6 @@
 # Daraja Local How-To Guides
 
-[![Daraja Local](/images/daraja-local-poster.png "Unofficial local sandbox for M-Pesa Daraja API integrations. Build, test, and debug STK Push flows, callbacks, transaction states, and payment edge cases locally before going live.")](https://daraja-local.chanansystems.co.ke)
+[![Daraja Local](../images/daraja-local-poster.png "Unofficial local sandbox for M-Pesa Daraja API integrations. Build, test, and debug STK Push flows, callbacks, transaction states, and payment edge cases locally before going live.")](https://daraja-local.chanansystems.co.ke)
 
 
 This folder contains practical guides for using Daraja Local during local M-Pesa Daraja development.
@@ -15,7 +15,7 @@ This folder contains practical guides for using Daraja Local during local M-Pesa
 - [Use C2B Register URL and Simulation](./c2b.md)
 - [Use B2C Payments](./b2c.md)
 - [Use B2B Payments](./b2b.md)
-- [Use B2C Account Top-Up](./b2c-account-top-up.md)
+- [Use experimental B2C Account Top-Up](./b2c-account-top-up.md)
 - [Approve, Fail, and Timeout Transactions](./simulate-outcomes.md)
 - [Receive and Replay Callbacks](./callbacks.md)
 - [Inspect Transactions](./inspect-transactions.md)
