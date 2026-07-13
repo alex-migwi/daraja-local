@@ -3,6 +3,7 @@ import { AppError } from "../../shared/errors.js";
 import { createConversationId } from "../../shared/id.js";
 import type { CallbackDispatcherPort } from "../callbacks/callback-dispatcher.js";
 import type { TransactionService } from "../transactions/transaction.service.js";
+import type { CallbackAttempt } from "../transactions/transaction.types.js";
 
 const registerUrlSchema = z.object({
   ShortCode: z.string().min(1),
@@ -94,22 +95,11 @@ export class C2BService {
     );
     await this.transactions.addCallbackAttempt(transaction.trackingId, validationAttempt);
 
-    const validationDecision = validationAttempt.ok
-      ? validationDecisionSchema.safeParse(validationAttempt.responseBody)
-      : undefined;
-
-    if (validationDecision?.success && validationDecision.data.ResultCode !== "0") {
+    const validationFailure = getValidationFailure(validationAttempt, registration.ResponseType);
+    if (validationFailure) {
       await this.transactions.transitionC2B(transaction.trackingId, "FAILED", {
-        code: validationDecision.data.ResultCode,
-        desc: validationDecision.data.ResultDesc
-      });
-      return simulationAcknowledgement(transaction);
-    }
-
-    if (!validationDecision?.success && registration.ResponseType === "Cancelled") {
-      await this.transactions.transitionC2B(transaction.trackingId, "FAILED", {
-        code: 1,
-        desc: "C2B validation did not return a valid decision."
+        code: validationFailure.code,
+        desc: validationFailure.description
       });
       return simulationAcknowledgement(transaction);
     }
@@ -135,4 +125,29 @@ function simulationAcknowledgement(transaction: {
     OriginatorConversationID: transaction.originatorConversationId,
     ResponseDescription: "Accept the service request successfully."
   };
+}
+
+function getValidationFailure(
+  attempt: CallbackAttempt,
+  responseType: C2BUrlRegistration["ResponseType"]
+): { code: string | number; description: string } | undefined {
+  const decision = attempt.ok
+    ? validationDecisionSchema.safeParse(attempt.responseBody)
+    : undefined;
+
+  if (decision?.success && decision.data.ResultCode !== "0") {
+    return {
+      code: decision.data.ResultCode,
+      description: decision.data.ResultDesc
+    };
+  }
+
+  if (!decision?.success && responseType === "Cancelled") {
+    return {
+      code: 1,
+      description: "C2B validation did not return a valid decision."
+    };
+  }
+
+  return undefined;
 }
