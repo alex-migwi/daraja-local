@@ -1,5 +1,8 @@
 # Daraja Local
 
+[![CI](https://github.com/alex-migwi/daraja-local/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/alex-migwi/daraja-local/actions/workflows/ci.yml)
+[![Test coverage](https://img.shields.io/codecov/c/github/alex-migwi/daraja-local/master?style=flat-square&logo=vitest&label=coverage)](https://codecov.io/gh/alex-migwi/daraja-local)
+
 [![Daraja Local](./images/daraja-local-poster.png "Unofficial local sandbox for M-Pesa Daraja API integrations. Build, test, and debug STK Push flows, callbacks, transaction states, and payment edge cases locally before going live.")](https://daraja-local.chanansystems.co.ke)
 
 
