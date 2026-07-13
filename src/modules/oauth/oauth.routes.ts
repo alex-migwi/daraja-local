@@ -1,9 +1,13 @@
 import type { FastifyInstance } from "fastify";
 import { AppError } from "../../shared/errors.js";
-import { createAccessToken } from "../../shared/id.js";
 import type { AppConfig } from "../../shared/config.js";
+import type { AccessTokenService } from "./access-token.service.js";
 
-export async function registerOAuthRoutes(app: FastifyInstance, config: AppConfig) {
+export async function registerOAuthRoutes(
+  app: FastifyInstance,
+  config: AppConfig,
+  tokens: AccessTokenService
+) {
   app.get("/oauth/v1/generate", {
     schema: {
       querystring: {
@@ -17,39 +21,34 @@ export async function registerOAuthRoutes(app: FastifyInstance, config: AppConfi
   }, async (request) => {
     const authorization = request.headers.authorization;
 
-    // 1. Validate Header Presence and Format
     if (!authorization || !authorization.startsWith("Basic ")) {
       throw new AppError("INVALID_AUTH_HEADER", "Basic authorization header is required", 401);
     }
 
-    // 2. Extract and Decode Base64 Credentials
-    const base64Credentials = authorization.split(" ")[1];
-    let decodedCredentials: string;
-    
-    try {
-      // Node.js Buffer handles Base64 decoding
-      decodedCredentials = Buffer.from(base64Credentials, "base64").toString("utf-8");
-    } catch (error) {
-      throw new AppError("INVALID_AUTH_FORMAT", "Failed to decode credentials", 400);
-    }
+    const [consumerKey, consumerSecret] = decodeCredentials(authorization.slice("Basic ".length));
 
-    // 3. Split into Key and Secret
-    const [consumerKey, consumerSecret] = decodedCredentials.split(":");
-
-    if (!consumerKey || !consumerSecret) {
-      throw new AppError("INVALID_AUTH_FORMAT", "Credentials must be in 'key:secret' format", 400);
-    }
-
-    // 4. Validate against your configured credentials
-    // (Replace this check with your actual config lookup or database validation)
     if (consumerKey !== config.consumerKey || consumerSecret !== config.consumerSecret) {
       throw new AppError("INVALID_CREDENTIALS", "Invalid consumer key or secret", 401);
     }
 
-    // 5. Return Token (Safaricom expects access_token and expires_in)
     return {
-      access_token: createAccessToken(),
-      expires_in: String(config.tokenExpiresInSeconds) // Usually "3599" or "3600"
+      access_token: tokens.issue(config.tokenExpiresInSeconds),
+      expires_in: String(config.tokenExpiresInSeconds)
     };
   });
-}   
+}
+
+function decodeCredentials(encoded: string): [string, string] {
+  const validBase64 = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+  if (!validBase64.test(encoded)) {
+    throw new AppError("INVALID_AUTH_FORMAT", "Credentials must be valid Base64", 400);
+  }
+
+  const decoded = Buffer.from(encoded, "base64").toString("utf8");
+  const separator = decoded.indexOf(":");
+  if (separator < 1 || separator === decoded.length - 1) {
+    throw new AppError("INVALID_AUTH_FORMAT", "Credentials must be in 'key:secret' format", 400);
+  }
+
+  return [decoded.slice(0, separator), decoded.slice(separator + 1)];
+}
