@@ -13,7 +13,9 @@ See the [Daraja compatibility contract](./docs/compatibility.md) for verified be
 
 > Unofficial local sandbox for M-Pesa Daraja API integrations. Build, test, and debug STK Push flows, callbacks, transaction states, and payment edge cases locally before going live.
 
-> Copyright (C) 2026 [Alex Muturi] This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, version 3.
+> Copyright (C) 2026 Job Alex Muturi.
+>
+> Daraja Local is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License or, at your option, any later version. See [LICENSE.md](./LICENSE.md).
 
 
 ## Daraja Local How-To Guides

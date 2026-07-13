@@ -1,0 +1,58 @@
+name: Feature request
+description: Propose a focused improvement to Daraja Local
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What integration or development problem needs to be solved?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe the smallest observable behavior that would solve the problem.
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Daraja contract evidence
+      description: Link the relevant official Safaricom documentation or explain why the request is emulator-only.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Note existing workarounds or smaller alternatives.
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: List specific outcomes that would make the request complete.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Submission checks
+      options:
+        - label: I searched existing issues and pull requests.
+          required: true
+        - label: This request fits the compatibility contract or explains the required contract change.
+          required: true
+        - label: I agree to follow the Code of Conduct.
+          required: true
