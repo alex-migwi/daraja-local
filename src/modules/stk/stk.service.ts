@@ -1,6 +1,6 @@
 import { AppError } from "../../shared/errors.js";
 import type { TransactionService } from "../transactions/transaction.service.js";
-import type { Transaction } from "../transactions/transaction.types.js";
+import type { StkTransaction } from "../transactions/transaction.types.js";
 import { stkPushRequestSchema, stkQueryRequestSchema } from "./stk.schema.js";
 
 export class StkService {
@@ -33,7 +33,7 @@ export class StkService {
   }
 }
 
-function mapTransactionToQueryResponse(transaction: Transaction) {
+function mapTransactionToQueryResponse(transaction: StkTransaction) {
   if (transaction.status === "PENDING") {
     return {
       ResponseCode: "0",

@@ -1,35 +1,28 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createServer } from "../src/server/create-server.js";
-import { validStkRequest } from "./helpers.js";
+import { authHeaders, RecordingCallbackDispatcher, validStkRequest } from "./helpers.js";
 
 describe("simulator endpoints", () => {
   let server: Awaited<ReturnType<typeof createServer>>;
-  let callbackServer: Awaited<ReturnType<typeof createServer>>["app"];
-  const callbacks: unknown[] = [];
+  let dispatcher: RecordingCallbackDispatcher;
+  let headers: Awaited<ReturnType<typeof authHeaders>>;
 
   beforeEach(async () => {
-    callbacks.length = 0;
-    server = await createServer();
-    callbackServer = (await createServer()).app;
-    callbackServer.post("/callback", async (request) => {
-      callbacks.push(request.body);
-      return { received: true };
-    });
-    await callbackServer.listen({ host: "127.0.0.1", port: 0 });
+    dispatcher = new RecordingCallbackDispatcher();
+    server = await createServer({ dispatcher });
+    headers = await authHeaders(server.app);
   });
 
   afterEach(async () => {
     await server.app.close();
-    await callbackServer.close();
   });
 
   it("approves a transaction and sends a success callback", async () => {
-    const address = callbackServer.server.address();
-    const port = address && typeof address === "object" ? address.port : 0;
-    const callbackUrl = `http://127.0.0.1:${port}/callback`;
+    const callbackUrl = "http://callback.test/stk";
     const push = await server.app.inject({
       method: "POST",
       url: "/mpesa/stkpush/v1/processrequest",
+      headers,
       payload: validStkRequest({ CallBackURL: callbackUrl })
     });
     const checkoutRequestId = push.json().CheckoutRequestID;
@@ -42,8 +35,8 @@ describe("simulator endpoints", () => {
     expect(approve.statusCode).toBe(200);
     expect(approve.json().status).toBe("SUCCESS");
     expect(approve.json().callbackAttempts).toHaveLength(1);
-    expect(callbacks).toHaveLength(1);
-    expect(callbacks[0]).toMatchObject({
+    expect(dispatcher.attempts).toHaveLength(1);
+    expect(dispatcher.attempts[0]?.payload).toMatchObject({
       Body: {
         stkCallback: {
           CheckoutRequestID: checkoutRequestId,
@@ -57,6 +50,7 @@ describe("simulator endpoints", () => {
     const push = await server.app.inject({
       method: "POST",
       url: "/mpesa/stkpush/v1/processrequest",
+      headers,
       payload: validStkRequest()
     });
     const checkoutRequestId = push.json().CheckoutRequestID;
@@ -66,5 +60,47 @@ describe("simulator endpoints", () => {
 
     expect(approve.statusCode).toBe(409);
     expect(approve.json().error.code).toBe("INVALID_TRANSACTION_TRANSITION");
+  });
+
+  it("does not transition an STK transaction through a payment route", async () => {
+    const push = await server.app.inject({
+      method: "POST",
+      url: "/mpesa/stkpush/v1/processrequest",
+      headers,
+      payload: validStkRequest()
+    });
+    const checkoutRequestId = push.json().CheckoutRequestID;
+
+    const response = await server.app.inject({
+      method: "POST",
+      url: `/simulator/payments/${checkoutRequestId}/approve`
+    });
+    const transaction = await server.app.inject({
+      method: "GET",
+      url: `/simulator/transactions/${checkoutRequestId}`
+    });
+
+    expect(response.statusCode).toBe(409);
+    expect(response.json().error.code).toBe("INVALID_TRANSACTION_KIND");
+    expect(transaction.json().status).toBe("PENDING");
+  });
+
+  it("rejects replay through the wrong callback family", async () => {
+    const push = await server.app.inject({
+      method: "POST",
+      url: "/mpesa/stkpush/v1/processrequest",
+      headers,
+      payload: validStkRequest()
+    });
+    const checkoutRequestId = push.json().CheckoutRequestID;
+
+    const response = await server.app.inject({
+      method: "POST",
+      url: `/simulator/payments/${checkoutRequestId}/replay-callback`
+    });
+
+    expect(response.statusCode).toBe(409);
+    expect(response.json().error.code).toBe("INVALID_TRANSACTION_KIND");
+    expect(dispatcher.attempts).toHaveLength(0);
   });
 });
