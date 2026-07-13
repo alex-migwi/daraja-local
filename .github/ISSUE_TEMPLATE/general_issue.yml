@@ -1,0 +1,48 @@
+name: General issue
+description: Raise a scoped question, documentation task, or maintenance concern
+title: "[Issue]: "
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Issue type
+      options:
+        - Documentation
+        - Maintenance
+        - Compatibility question
+        - Testing
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: State the issue and why it matters.
+    validations:
+      required: true
+
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: Describe a clear result or decision that would resolve this issue.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add relevant links, examples, or constraints.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Submission checks
+      options:
+        - label: I searched existing issues and pull requests.
+          required: true
+        - label: I agree to follow the Code of Conduct.
+          required: true

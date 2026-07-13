@@ -1,0 +1,91 @@
+name: Bug report
+description: Report reproducible incorrect behavior in Daraja Local
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting a problem. Remove credentials and other sensitive data from every example.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - OAuth
+        - STK Push or Query
+        - C2B
+        - B2C
+        - B2B
+        - Callbacks
+        - Simulator controls
+        - CLI or server
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Actual behavior
+      description: Describe what happened, including relevant status codes and response bodies.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: Describe the expected result and link the applicable Daraja documentation when relevant.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Provide the smallest sequence that consistently reproduces the problem.
+      placeholder: |
+        1. Start Daraja Local with ...
+        2. Send ...
+        3. Observe ...
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Daraja Local version or commit
+      placeholder: 0.1.0 or commit SHA
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Include the operating system and Node.js version.
+      placeholder: Ubuntu 24.04, Node.js 20.19.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or payloads
+      description: Remove credentials, tokens, phone numbers, and personal data.
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Submission checks
+      options:
+        - label: I searched existing issues for this problem.
+          required: true
+        - label: I removed credentials and sensitive data.
+          required: true
+        - label: I agree to follow the Code of Conduct.
+          required: true

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/alex-migwi/daraja-local/security/advisories/new
+    about: Report vulnerabilities privately through a GitHub security advisory.
+  - name: Safaricom Daraja support
+    url: https://developer.safaricom.co.ke/
+    about: Use the official portal for live Daraja credentials, availability, and production API support.
