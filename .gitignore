@@ -1,6 +1,8 @@
 node_modules/
 dist/
+coverage/
 .env
 *.log
 
 roadmap/
+docs/review-plan.md

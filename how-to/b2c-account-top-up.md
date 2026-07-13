@@ -1,6 +1,6 @@
 # Use B2C Account Top-Up
 
-B2C Account Top-Up moves value between business-controlled M-PESA accounts for payout liquidity workflows.
+This route is experimental. B2C Account Top-Up availability and fields vary by Daraja product and version; verify them in the active Safaricom portal before relying on parity.
 
 ## Flow
 
@@ -28,9 +28,10 @@ B2C Account Top-Up moves value between business-controlled M-PESA accounts for p
 ## Request
 
 ```bash
-curl -X POST http://127.0.0.1:8080/mpesa/b2caccounttopup/v1/request ^
-  -H "Content-Type: application/json" ^
-  -d "{\"InitiatorName\":\"testapi\",\"SecurityCredential\":\"credential\",\"CommandID\":\"BusinessPayBill\",\"Amount\":10000,\"PartyA\":\"600000\",\"PartyB\":\"600001\",\"Remarks\":\"Top up utility account\",\"QueueTimeOutURL\":\"http://127.0.0.1:3000/topup/timeout\",\"ResultURL\":\"http://127.0.0.1:3000/topup/result\",\"AccountReference\":\"TOPUP-001\"}"
+curl -X POST http://127.0.0.1:8080/mpesa/b2caccounttopup/v1/request \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" \
+  -d '{"InitiatorName":"testapi","SecurityCredential":"credential","CommandID":"BusinessPayBill","Amount":10000,"PartyA":"600000","PartyB":"600001","Remarks":"Top up utility account","QueueTimeOutURL":"http://127.0.0.1:3000/topup/timeout","ResultURL":"http://127.0.0.1:3000/topup/result","AccountReference":"TOPUP-001"}'
 ```
 
 ## Simulate Completion

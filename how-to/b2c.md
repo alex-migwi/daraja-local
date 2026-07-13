@@ -2,6 +2,8 @@
 
 B2C sends money from a business shortcode to a customer phone number. Common use cases include refunds, salary payments, withdrawals, and rewards.
 
+B2Pochi requests are not supported by this route.
+
 ## Flow
 
 ```txt
@@ -30,9 +32,10 @@ B2C sends money from a business shortcode to a customer phone number. Common use
 ## Request
 
 ```bash
-curl -X POST http://127.0.0.1:8080/mpesa/b2c/v1/paymentrequest ^
-  -H "Content-Type: application/json" ^
-  -d "{\"InitiatorName\":\"testapi\",\"SecurityCredential\":\"credential\",\"CommandID\":\"BusinessPayment\",\"Amount\":1000,\"PartyA\":\"600000\",\"PartyB\":\"254712345678\",\"Remarks\":\"Refund\",\"QueueTimeOutURL\":\"http://127.0.0.1:3000/b2c/timeout\",\"ResultURL\":\"http://127.0.0.1:3000/b2c/result\",\"Occassion\":\"Refund\"}"
+curl -X POST http://127.0.0.1:8080/mpesa/b2c/v1/paymentrequest \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" \
+  -d '{"InitiatorName":"testapi","SecurityCredential":"credential","CommandID":"BusinessPayment","Amount":1000,"PartyA":"600000","PartyB":"254712345678","Remarks":"Refund","QueueTimeOutURL":"http://127.0.0.1:3000/b2c/timeout","ResultURL":"http://127.0.0.1:3000/b2c/result","Occasion":"Refund"}'
 ```
 
 ## Simulate Completion

@@ -32,7 +32,7 @@ POST /mpesa/stkpushquery/v1/query
 curl -X POST http://127.0.0.1:8080/mpesa/stkpushquery/v1/query \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer <ACCESS_TOKEN_FROM_OAUTH_REQUEST>" \
-  -d "{\"BusinessShortCode\":\"174379\",\"Password\":\"GENERATED_BASE64_PASSWORD\",\"Timestamp\":\"20260705123000\",\"CheckoutRequestID\":\"ws_CO_1760000000000_abcd1234ef56\"}"   
+  -d "{\"BusinessShortCode\":174379,\"Password\":\"GENERATED_BASE64_PASSWORD\",\"Timestamp\":\"20260705123000\",\"CheckoutRequestID\":\"ws_CO_1760000000000_abcd1234ef56\"}"
 ```
 
 ## Important to note
@@ -43,7 +43,7 @@ Example
 ```javascript
 Buffer.from("174379" + "your_passkey" + "20260705123000").toString("base64") 
 ```
-> Without these fields, the Safaricom API (and your local mock) will reject the request as unauthorized or malformed.
+Safaricom validates the password construction. Daraja Local validates only that the field is present because it does not hold a production passkey.
 
 
 

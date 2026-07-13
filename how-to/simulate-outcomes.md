@@ -34,7 +34,7 @@ daraja-local fail <CheckoutRequestID>
 daraja-local timeout <CheckoutRequestID>
 ```
 
-For B2C, B2B, and B2C account top-up:
+For B2C and B2B, plus the experimental B2C account top-up flow:
 
 ```bash
 daraja-local approve-payment <ConversationID>
@@ -66,7 +66,7 @@ POST /simulator/payments/:id/fail
 POST /simulator/payments/:id/timeout
 ```
 
-The `:id` value is the `CheckoutRequestID`.
+For `/simulator/stk/*`, `:id` is the `CheckoutRequestID`. For `/simulator/payments/*`, it is the `ConversationID`.
 
 ## Approve
 

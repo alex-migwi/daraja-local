@@ -19,19 +19,19 @@ export async function registerSimulatorRoutes(
 
   app.post("/simulator/stk/:id/approve", async (request) => {
     const { id } = paramsSchema.parse(request.params);
-    const transaction = await transactions.transition(id, "SUCCESS");
+    const transaction = await transactions.transitionStk(id, "SUCCESS");
     return callbacks.sendStkCallback(transaction);
   });
 
   app.post("/simulator/stk/:id/fail", async (request) => {
     const { id } = paramsSchema.parse(request.params);
-    const transaction = await transactions.transition(id, "FAILED");
+    const transaction = await transactions.transitionStk(id, "FAILED");
     return callbacks.sendStkCallback(transaction);
   });
 
   app.post("/simulator/stk/:id/timeout", async (request) => {
     const { id } = paramsSchema.parse(request.params);
-    const transaction = await transactions.transition(id, "TIMEOUT");
+    const transaction = await transactions.transitionStk(id, "TIMEOUT");
     return callbacks.sendStkCallback(transaction);
   });
 
@@ -45,8 +45,10 @@ export async function registerSimulatorRoutes(
     app.post(`/simulator/payments/:id/${action}`, async (request) => {
       const { id } = paramsSchema.parse(request.params);
       const status = action === "approve" ? "SUCCESS" : action === "fail" ? "FAILED" : "TIMEOUT";
-      const transaction = await transactions.transition(id, status);
-      return callbacks.sendBusinessPaymentResult(transaction);
+      const transaction = await transactions.transitionBusinessPayment(id, status);
+      return action === "timeout"
+        ? callbacks.sendBusinessPaymentTimeout(transaction)
+        : callbacks.sendBusinessPaymentResult(transaction);
     });
   }
 

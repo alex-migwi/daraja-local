@@ -2,163 +2,651 @@ openapi: 3.1.0
 info:
   title: Daraja Local API
   version: 0.1.0
+  description: Unofficial local emulator for selected Safaricom Daraja API flows.
+servers:
+  - url: http://127.0.0.1:8080
+tags:
+  - name: Metadata
+  - name: OAuth
+  - name: STK
+  - name: C2B
+  - name: Business payments
+  - name: Simulator
+
 paths:
   /health:
     get:
+      tags: [Metadata]
+      summary: Check service health
       responses:
         "200":
-          description: Health status
+          description: Service is available.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
   /version:
     get:
+      tags: [Metadata]
+      summary: Get emulator package metadata
       responses:
         "200":
-          description: Package metadata
+          description: Package name and version.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Version"
+
   /oauth/v1/generate:
     get:
+      tags: [OAuth]
+      summary: Issue a local access token
+      security:
+        - basicAuth: []
+      parameters:
+        - name: grant_type
+          in: query
+          required: true
+          schema:
+            type: string
+            const: client_credentials
       responses:
         "200":
-          description: Fake Daraja OAuth token
+          description: Access token issued.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OAuthToken"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
-          description: Missing Basic Auth
+          $ref: "#/components/responses/Unauthorized"
+
   /mpesa/stkpush/v1/processrequest:
     post:
+      tags: [STK]
+      summary: Submit an STK Push request
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StkPushRequest"
       responses:
         "200":
-          description: STK request accepted
+          description: Request accepted for asynchronous processing.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StkPushAccepted"
         "400":
-          description: Invalid request
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /mpesa/stkpushquery/v1/query:
     post:
+      tags: [STK]
+      summary: Query an STK Push transaction
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StkQueryRequest"
       responses:
         "200":
-          description: STK transaction status
+          description: Current transaction result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StkQueryResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
         "404":
-          description: Transaction not found
+          $ref: "#/components/responses/NotFound"
+
   /mpesa/c2b/v1/registerurl:
     post:
+      tags: [C2B]
+      summary: Register C2B validation and confirmation URLs
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/C2BRegisterRequest"
       responses:
         "200":
-          description: C2B URLs registered
+          description: URLs registered.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AsyncAccepted"
         "400":
-          description: Invalid C2B URL registration request
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /mpesa/c2b/v1/simulate:
     post:
+      tags: [C2B]
+      summary: Simulate a C2B payment
+      description: Calls the registered ValidationURL and, when accepted, the ConfirmationURL.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/C2BSimulateRequest"
       responses:
         "200":
-          description: C2B payment simulated and confirmation callback sent
+          description: Simulation processed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AsyncAcknowledgement"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
         "404":
-          description: C2B URLs not registered for shortcode
+          $ref: "#/components/responses/NotFound"
+
   /mpesa/b2c/v1/paymentrequest:
     post:
+      tags: [Business payments]
+      summary: Submit a B2C payment request
+      description: B2Pochi requests are not supported.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/B2CRequest"
       responses:
         "200":
-          description: B2C payment request accepted
+          $ref: "#/components/responses/AsyncRequestAccepted"
         "400":
-          description: Invalid B2C request
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /mpesa/b2b/v1/paymentrequest:
     post:
+      tags: [Business payments]
+      summary: Submit a B2B payment request
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/B2BRequest"
       responses:
         "200":
-          description: B2B payment request accepted
+          $ref: "#/components/responses/AsyncRequestAccepted"
         "400":
-          description: Invalid B2B request
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /mpesa/b2caccounttopup/v1/request:
     post:
+      tags: [Business payments]
+      summary: Submit an experimental B2C account top-up request
+      description: Experimental emulator coverage. Safaricom availability, fields, command identifiers, and result codes are product- and version-sensitive; verify them against the applicable Daraja documentation.
+      x-version-sensitive: true
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountTopUpRequest"
       responses:
         "200":
-          description: B2C account top-up request accepted
+          $ref: "#/components/responses/AsyncRequestAccepted"
         "400":
-          description: Invalid B2C account top-up request
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
   /simulator/transactions:
     get:
+      tags: [Simulator]
+      summary: List recorded transactions
       responses:
         "200":
-          description: Transaction list
+          description: Transactions in creation order.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transaction"
   /simulator/transactions/{id}:
     get:
+      tags: [Simulator]
+      summary: Inspect a transaction
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/TransactionId"
       responses:
         "200":
-          description: Transaction detail
+          $ref: "#/components/responses/TransactionFound"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
   /simulator/stk/{id}/approve:
-    post:
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Transaction approved and callback sent
+    $ref: "#/components/pathItems/StkAction"
   /simulator/stk/{id}/fail:
-    post:
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Transaction failed and callback sent
+    $ref: "#/components/pathItems/StkAction"
   /simulator/stk/{id}/timeout:
+    $ref: "#/components/pathItems/StkAction"
+  /simulator/stk/{id}/replay-callback:
     post:
+      tags: [Simulator]
+      summary: Replay an STK callback
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/TransactionId"
       responses:
         "200":
-          description: Transaction timed out and callback sent
+          $ref: "#/components/responses/TransactionFound"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
   /simulator/payments/{id}/approve:
-    post:
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Async payment approved and ResultURL callback sent
+    $ref: "#/components/pathItems/PaymentAction"
   /simulator/payments/{id}/fail:
-    post:
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Async payment failed and ResultURL callback sent
+    $ref: "#/components/pathItems/PaymentAction"
   /simulator/payments/{id}/timeout:
     post:
+      tags: [Simulator]
+      summary: Time out an asynchronous business payment
+      description: Moves a pending B2C, B2B, or account top-up transaction to TIMEOUT and delivers the timeout callback to its QueueTimeOutURL.
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/TransactionId"
       responses:
         "200":
-          description: Async payment timed out and ResultURL callback sent
+          $ref: "#/components/responses/TransactionFound"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
   /simulator/payments/{id}/replay-callback:
     post:
+      tags: [Simulator]
+      summary: Replay a business-payment callback
+      description: Replays the current terminal callback; timeout callbacks are delivered to QueueTimeOutURL and other results to ResultURL.
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/TransactionId"
       responses:
         "200":
-          description: Async payment callback replayed
+          $ref: "#/components/responses/TransactionFound"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque
+
+  parameters:
+    TransactionId:
+      name: id
+      in: path
+      required: true
+      description: Emulator tracking identifier.
+      schema:
+        type: string
+        minLength: 1
+
+  pathItems:
+    StkAction:
+      post:
+        tags: [Simulator]
+        summary: Resolve a pending STK transaction and send its callback
+        parameters:
+          - $ref: "#/components/parameters/TransactionId"
+        responses:
+          "200":
+            $ref: "#/components/responses/TransactionFound"
+          "400":
+            $ref: "#/components/responses/BadRequest"
+          "404":
+            $ref: "#/components/responses/NotFound"
+          "409":
+            $ref: "#/components/responses/Conflict"
+    PaymentAction:
+      post:
+        tags: [Simulator]
+        summary: Resolve a pending asynchronous business payment
+        description: Approvals and failures deliver to ResultURL.
+        parameters:
+          - $ref: "#/components/parameters/TransactionId"
+        responses:
+          "200":
+            $ref: "#/components/responses/TransactionFound"
+          "400":
+            $ref: "#/components/responses/BadRequest"
+          "404":
+            $ref: "#/components/responses/NotFound"
+          "409":
+            $ref: "#/components/responses/Conflict"
+
+  responses:
+    AsyncRequestAccepted:
+      description: Request accepted for asynchronous processing.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AsyncAccepted"
+    TransactionFound:
+      description: Transaction state, including recorded callback attempts.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Transaction"
+    BadRequest:
+      description: Request validation or callback configuration failed.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: Authentication credentials or access token are missing or invalid.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Transaction or C2B registration was not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Conflict:
+      description: Transaction kind or state does not permit the operation.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    Health:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          const: ok
+    Version:
+      type: object
+      required: [name, version]
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+    OAuthToken:
+      type: object
+      required: [access_token, expires_in]
+      properties:
+        access_token:
+          type: string
+        expires_in:
+          type: string
+          description: Token lifetime in seconds.
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+
+    StkPushRequest:
+      type: object
+      required: [BusinessShortCode, Password, Timestamp, TransactionType, Amount, PartyA, PartyB, PhoneNumber, CallBackURL, AccountReference, TransactionDesc]
+      properties:
+        BusinessShortCode: { type: integer, minimum: 1 }
+        Password: { type: string, minLength: 1 }
+        Timestamp: { $ref: "#/components/schemas/DarajaTimestamp" }
+        TransactionType:
+          type: string
+          enum: [CustomerPayBillOnline, CustomerBuyGoodsOnline]
+        Amount: { type: integer, minimum: 1 }
+        PartyA: { $ref: "#/components/schemas/NumericKenyanMsisdn" }
+        PartyB: { type: integer, minimum: 1 }
+        PhoneNumber: { $ref: "#/components/schemas/NumericKenyanMsisdn" }
+        CallBackURL: { type: string, format: uri }
+        AccountReference: { type: string, minLength: 1 }
+        TransactionDesc: { type: string, minLength: 1 }
+    StkQueryRequest:
+      type: object
+      required: [BusinessShortCode, Password, Timestamp, CheckoutRequestID]
+      properties:
+        BusinessShortCode: { type: integer, minimum: 1 }
+        Password: { type: string, minLength: 1 }
+        Timestamp: { $ref: "#/components/schemas/DarajaTimestamp" }
+        CheckoutRequestID: { type: string, minLength: 1 }
+    StkPushAccepted:
+      type: object
+      required: [MerchantRequestID, CheckoutRequestID, ResponseCode, ResponseDescription, CustomerMessage]
+      properties:
+        MerchantRequestID: { type: string }
+        CheckoutRequestID: { type: string }
+        ResponseCode: { type: string }
+        ResponseDescription: { type: string }
+        CustomerMessage: { type: string }
+    StkQueryResponse:
+      type: object
+      required: [MerchantRequestID, CheckoutRequestID, ResponseCode, ResponseDescription, ResultCode, ResultDesc]
+      properties:
+        MerchantRequestID: { type: string }
+        CheckoutRequestID: { type: string }
+        ResponseCode: { type: string }
+        ResponseDescription: { type: string }
+        ResultCode:
+          oneOf:
+            - type: string
+            - type: integer
+          description: Emulator result. Production codes are product- and version-sensitive and must be checked against applicable Safaricom documentation.
+          x-version-sensitive: true
+        ResultDesc: { type: string }
+
+    C2BRegisterRequest:
+      type: object
+      required: [ShortCode, ResponseType, ConfirmationURL, ValidationURL]
+      properties:
+        ShortCode: { type: string, minLength: 1 }
+        ResponseType:
+          type: string
+          enum: [Completed, Cancelled]
+          description: Default action when validation cannot return a valid decision.
+        ConfirmationURL: { type: string, format: uri }
+        ValidationURL: { type: string, format: uri }
+    C2BSimulateRequest:
+      type: object
+      required: [ShortCode, CommandID, Amount, Msisdn]
+      properties:
+        ShortCode: { type: string, minLength: 1 }
+        CommandID:
+          type: string
+          const: CustomerPayBillOnline
+        Amount: { type: integer, minimum: 1 }
+        Msisdn: { $ref: "#/components/schemas/KenyanMsisdn" }
+        BillRefNumber: { type: string, minLength: 1 }
+
+    B2CRequest:
+      allOf:
+        - $ref: "#/components/schemas/BusinessPaymentBase"
+        - type: object
+          required: [InitiatorName, CommandID]
+          properties:
+            InitiatorName: { type: string, minLength: 1 }
+            CommandID:
+              type: string
+              enum: [SalaryPayment, BusinessPayment, PromotionPayment]
+            PartyB: { $ref: "#/components/schemas/KenyanMsisdn" }
+            Occasion: { type: string }
+    B2BRequest:
+      type: object
+      required: [Initiator, SecurityCredential, CommandID, SenderIdentifierType, ReceiverIdentifierType, Amount, PartyA, PartyB, AccountReference, Remarks, QueueTimeOutURL, ResultURL]
+      properties:
+        Initiator: { type: string, minLength: 1 }
+        SecurityCredential: { type: string, minLength: 1 }
+        CommandID:
+          type: string
+          enum: [BusinessPayBill, BusinessBuyGoods, DisburseFundsToBusiness, BusinessToBusinessTransfer, MerchantToMerchantTransfer]
+        SenderIdentifierType: { $ref: "#/components/schemas/StringOrNumber" }
+        ReceiverIdentifierType: { $ref: "#/components/schemas/StringOrNumber" }
+        Amount: { type: integer, minimum: 1 }
+        PartyA: { type: string, minLength: 1 }
+        PartyB: { type: string, minLength: 1 }
+        AccountReference: { type: string, minLength: 1 }
+        Remarks: { type: string, minLength: 1 }
+        QueueTimeOutURL: { type: string, format: uri }
+        ResultURL: { type: string, format: uri }
+    AccountTopUpRequest:
+      description: Experimental schema; verify supported fields and CommandID with the applicable Safaricom Daraja version.
+      x-version-sensitive: true
+      allOf:
+        - $ref: "#/components/schemas/BusinessPaymentBase"
+        - type: object
+          required: [InitiatorName, CommandID]
+          properties:
+            InitiatorName: { type: string, minLength: 1 }
+            CommandID: { type: string, minLength: 1 }
+            Occasion: { type: string }
+            AccountReference: { type: string, minLength: 1 }
+    BusinessPaymentBase:
+      type: object
+      required: [SecurityCredential, Amount, PartyA, PartyB, Remarks, QueueTimeOutURL, ResultURL]
+      properties:
+        SecurityCredential: { type: string, minLength: 1 }
+        Amount: { type: integer, minimum: 1 }
+        PartyA: { type: string, minLength: 1 }
+        PartyB: { type: string, minLength: 1 }
+        Remarks: { type: string, minLength: 1 }
+        QueueTimeOutURL:
+          type: string
+          format: uri
+          description: Receives queue-timeout callbacks.
+        ResultURL:
+          type: string
+          format: uri
+          description: Receives success and failure result callbacks.
+
+    AsyncAccepted:
+      type: object
+      required: [ConversationID, OriginatorConversationID, ResponseDescription]
+      properties:
+        ConversationID: { type: string }
+        OriginatorConversationID: { type: string }
+        ResponseCode: { type: string }
+        ResponseDescription: { type: string }
+    AsyncAcknowledgement:
+      type: object
+      required: [ConversationID, OriginatorConversationID, ResponseDescription]
+      properties:
+        ConversationID: { type: string }
+        OriginatorConversationID: { type: string }
+        ResponseDescription: { type: string }
+    Transaction:
+      type: object
+      required: [id, kind, trackingId, status, amount, rawRequest, createdAt, updatedAt, callbackAttempts]
+      properties:
+        id: { type: string }
+        kind:
+          type: string
+          enum: [STK, C2B, B2C, B2B, B2C_ACCOUNT_TOPUP]
+        trackingId: { type: string }
+        merchantRequestId: { type: string }
+        checkoutRequestId: { type: string }
+        conversationId: { type: string }
+        originatorConversationId: { type: string }
+        status:
+          type: string
+          enum: [PENDING, SUCCESS, FAILED, TIMEOUT]
+        amount: { type: number }
+        phoneNumber: { type: string }
+        accountReference: { type: string }
+        senderParty: { type: string }
+        receiverParty: { type: string }
+        commandId: { type: string }
+        callbackUrl: { type: string, format: uri }
+        resultUrl: { type: string, format: uri }
+        queueTimeoutUrl: { type: string, format: uri }
+        rawRequest: {}
+        resultCode:
+          oneOf:
+            - type: integer
+            - type: string
+          description: Emulator result; production values are product- and version-sensitive.
+          x-version-sensitive: true
+        resultDesc: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        callbackAttempts:
+          type: array
+          items:
+            $ref: "#/components/schemas/CallbackAttempt"
+    CallbackAttempt:
+      type: object
+      required: [id, sentAt, ok, payload]
+      properties:
+        id: { type: string }
+        sentAt: { type: string, format: date-time }
+        statusCode: { type: integer }
+        ok: { type: boolean }
+        error: { type: string }
+        payload: {}
+        responseBody: {}
+
+    DarajaTimestamp:
+      type: string
+      pattern: "^[0-9]{14}$"
+      description: YYYYMMDDHHmmss.
+    KenyanMsisdn:
+      type: string
+      pattern: "^254[0-9]{9}$"
+    NumericKenyanMsisdn:
+      type: integer
+      minimum: 254000000000
+      maximum: 254999999999
+    StringOrNumber:
+      oneOf:
+        - type: string
+          minLength: 1
+        - type: number

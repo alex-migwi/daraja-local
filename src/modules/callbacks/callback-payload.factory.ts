@@ -1,7 +1,7 @@
-import type { Transaction } from "../transactions/transaction.types.js";
+import type { StkTransaction, Transaction } from "../transactions/transaction.types.js";
 import { createTransactionReceipt } from "../../shared/id.js";
 
-export function createStkCallbackPayload(transaction: Transaction) {
+export function createStkCallbackPayload(transaction: StkTransaction) {
   const base = {
     Body: {
       stkCallback: {
@@ -36,6 +36,19 @@ export function createStkCallbackPayload(transaction: Transaction) {
 
 export function createBusinessPaymentResultPayload(transaction: Transaction) {
   const transactionReceipt = transaction.status === "SUCCESS" ? createTransactionReceipt() : "";
+  const b2cAccountBalances = transaction.kind === "B2C"
+    ? [
+        { Key: "B2CWorkingAccountAvailableFunds", Value: "0.00" },
+        { Key: "B2CUtilityAccountAvailableFunds", Value: "0.00" }
+      ]
+    : [];
+  const resultParameters = [
+    { Key: "TransactionAmount", Value: transaction.amount },
+    { Key: "TransactionReceipt", Value: transactionReceipt },
+    { Key: "ReceiverPartyPublicName", Value: transaction.receiverParty ?? transaction.phoneNumber ?? "" },
+    ...b2cAccountBalances,
+    { Key: "TransactionCompletedDateTime", Value: new Date().toISOString() }
+  ];
 
   return {
     Result: {
@@ -46,14 +59,7 @@ export function createBusinessPaymentResultPayload(transaction: Transaction) {
       ConversationID: transaction.conversationId,
       TransactionID: transactionReceipt,
       ResultParameters: {
-        ResultParameter: [
-          { Key: "TransactionAmount", Value: transaction.amount },
-          { Key: "TransactionReceipt", Value: transactionReceipt },
-          { Key: "ReceiverPartyPublicName", Value: transaction.receiverParty ?? transaction.phoneNumber ?? "" },
-          { Key: "B2CWorkingAccountAvailableFunds", Value: "0.00" },
-          { Key: "B2CUtilityAccountAvailableFunds", Value: "0.00" },
-          { Key: "TransactionCompletedDateTime", Value: new Date().toISOString() }
-        ]
+        ResultParameter: resultParameters
       },
       ReferenceData: {
         ReferenceItem: {
@@ -61,6 +67,19 @@ export function createBusinessPaymentResultPayload(transaction: Transaction) {
           Value: transaction.queueTimeoutUrl ?? ""
         }
       }
+    }
+  };
+}
+
+export function createBusinessPaymentTimeoutPayload(transaction: Transaction) {
+  return {
+    Result: {
+      ResultType: 0,
+      ResultCode: transaction.resultCode ?? 9999,
+      ResultDesc: transaction.resultDesc ?? "The transaction timed out",
+      OriginatorConversationID: transaction.originatorConversationId,
+      ConversationID: transaction.conversationId,
+      TransactionID: ""
     }
   };
 }

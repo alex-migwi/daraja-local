@@ -5,7 +5,7 @@ Use the simulator transaction endpoints or CLI to inspect the in-memory transact
 ## Flow
 
 ```txt
-1. Your app creates one or more STK Push requests.
+1. Your app creates one or more supported payment requests.
 
 2. Daraja Local stores each request as an in-memory transaction.
 
@@ -46,11 +46,12 @@ curl http://127.0.0.1:8080/simulator/transactions/ws_CO_1760000000000_abcd1234ef
 
 Important fields:
 
-- `checkoutRequestId`: ID used for query and simulator actions.
-- `merchantRequestId`: Daraja-style merchant request ID.
+- `trackingId`: internal lookup key used by the inspection endpoints.
+- `checkoutRequestId` and `merchantRequestId`: STK identifiers.
+- `conversationId` and `originatorConversationId`: C2B, B2C, B2B, and account-top-up identifiers.
 - `status`: `PENDING`, `SUCCESS`, `FAILED`, or `TIMEOUT`.
-- `rawRequest`: original STK Push request.
-- `callbackAttempts`: callback delivery history.
+- `rawRequest`: validated public request for the transaction's flow.
+- `callbackAttempts`: callback URL, role, payload, response, and delivery result history.
 
 ## Storage Lifetime
 

@@ -1,38 +1,44 @@
 export type TransactionStatus = "PENDING" | "SUCCESS" | "FAILED" | "TIMEOUT";
 export type TransactionKind = "STK" | "C2B" | "B2C" | "B2B" | "B2C_ACCOUNT_TOPUP";
 
-export const TransactionValidationErrorCode = ["C2B00011" , "C2B00012" , "C2B00013" , "C2B00014" , "C2B00015" , "C2B00016"];
-
 export type StkRequestPayload = {
-  BusinessShortCode: string;
+  BusinessShortCode: number;
   Password: string;
   Timestamp: string;
   TransactionType: string;
   Amount: number;
-  PartyA: string;
-  PartyB: string;
-  PhoneNumber: string;
+  PartyA: number;
+  PartyB: number;
+  PhoneNumber: number;
   CallBackURL: string;
   AccountReference: string;
   TransactionDesc: string;
 };
-
+export type CallbackRole =
+  | "STK_RESULT"
+  | "C2B_VALIDATION"
+  | "C2B_CONFIRMATION"
+  | "BUSINESS_RESULT"
+  | "BUSINESS_TIMEOUT";
 
 export type CallbackAttempt = {
   id: string;
+  url: string;
+  role: CallbackRole;
   sentAt: string;
   statusCode?: number;
   ok: boolean;
   error?: string;
   payload: unknown;
+  responseBody?: unknown;
 };
 
 export type Transaction = {
   id: string;
   kind: TransactionKind;
   trackingId: string;
-  merchantRequestId: string;
-  checkoutRequestId: string;
+  merchantRequestId?: string;
+  checkoutRequestId?: string;
   conversationId?: string;
   originatorConversationId?: string;
   status: TransactionStatus;
@@ -48,14 +54,29 @@ export type Transaction = {
   rawRequest: unknown;
   createdAt: string;
   updatedAt: string;
-  resultCode?: number;
+  resultCode?: number | string;
   resultDesc?: string;
   callbackAttempts: CallbackAttempt[];
 };
 
+export type StkTransaction = Transaction & {
+  kind: "STK";
+  merchantRequestId: string;
+  checkoutRequestId: string;
+};
+
 export type TransactionRepository = {
   create(transaction: Transaction): Promise<Transaction>;
-  update(transaction: Transaction): Promise<Transaction>;
+  transition(
+    trackingId: string,
+    expectedStatus: TransactionStatus,
+    changes: Pick<Transaction, "status" | "resultCode" | "resultDesc" | "updatedAt">
+  ): Promise<Transaction | undefined>;
+  appendCallbackAttempt(
+    trackingId: string,
+    attempt: CallbackAttempt,
+    updatedAt: string
+  ): Promise<Transaction | undefined>;
   findById(id: string): Promise<Transaction | undefined>;
   findByCheckoutRequestId(checkoutRequestId: string): Promise<Transaction | undefined>;
   findByTrackingId(trackingId: string): Promise<Transaction | undefined>;

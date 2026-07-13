@@ -1,35 +1,27 @@
 # Generate OAuth Tokens
 
-Daraja Local implements a fake OAuth endpoint compatible with the shape of Daraja token responses.
+Daraja Local exposes a local OAuth endpoint with the same request and response shape used by Daraja. It validates credentials against the emulator configuration; it never sends them to Safaricom.
 
-## Flow
+## Configure credentials
 
-```txt
-1. Your app prepares Basic Auth credentials.
-
-2. Your app -> Daraja Local
-   GET /oauth/v1/generate
-   Sends the Basic Auth header.
-
-3. Daraja Local validates that Basic Auth is present.
-   It does not call Safaricom and does not validate real credentials.
-
-4. Daraja Local -> Your app
-   Returns a fake access token and expiry.
-
-5. Your app can use that token in local requests the same way it would use a Daraja token.
-```
-
-## Endpoint
-
-```http
-GET /oauth/v1/generate
-```
-
-## Example
+Set the credentials before starting the emulator:
 
 ```bash
-curl -X GET "http://127.0.0.1:8080/oauth/v1/generate?grant_type=client_credentials" -H "Authorization: Basic Y29uc3VtZXJfa2V5OmNvbnN1bWVyX3NlY3JldA=="
+export CONSUMER_KEY="consumer_key"
+export CONSUMER_SECRET="consumer_secret"
+npm run dev
+```
+
+These values default to `consumer_key` and `consumer_secret` when the variables are not set.
+
+## Request a token
+
+Send the configured consumer key and secret with HTTP Basic authentication and include the required `grant_type` query parameter:
+
+```bash
+curl --get "http://127.0.0.1:8080/oauth/v1/generate" \
+  --data-urlencode "grant_type=client_credentials" \
+  --user "consumer_key:consumer_secret"
 ```
 
 Expected response:
@@ -41,21 +33,28 @@ Expected response:
 }
 ```
 
-## Notes
+Use the returned token on every `/mpesa` request:
 
-- Credentials are not checked against Safaricom.
-- Daraja Local never calls real Safaricom APIs.
-- The endpoint requires a Basic Auth header so client applications exercise the same authentication flow they use with Daraja.
-- The default `> curl -X GET "http://127.0.0.1:8080/oauth/v1/generate?grant_type=client_credentials" -H "Authorization: Basic Y29uc3VtZXJfa2V5OmNvbnN1bWVyX3NlY3JldA=="`
+```http
+Authorization: Bearer daraja-local-token-...
+```
 
-- You need to set the string `consumer-key` and `consumer-secret`, in the `.env` file so that the sandbox can crosscheck if you have encoded it into `Base64`, correctly by decodiing the HTTP `header: Authorization: Basic <base64-encoded-string>` and comparing the resulting values.
+Missing, unknown, and expired tokens are rejected. Tokens are held in memory and become invalid when the emulator restarts.
 
+## Configure token expiry
 
-## Configure Token Expiry
+The default lifetime is 3,599 seconds. Override it before starting the emulator:
+
+```bash
+export DARAJA_LOCAL_TOKEN_EXPIRES_IN="120"
+npm run dev
+```
 
 PowerShell:
 
 ```powershell
 $env:DARAJA_LOCAL_TOKEN_EXPIRES_IN = "120"
-daraja-local start
+npm run dev
 ```
+
+For the authoritative Daraja contract, see the [Safaricom Daraja Developer Portal](https://developer.safaricom.co.ke/).
