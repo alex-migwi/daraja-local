@@ -35,7 +35,7 @@ daraja-local --version
 Expected output:
 
 ```txt
-0.1.0
+1.0.0
 ```
 
 ## 5. If `daraja-local` Is Not Found
@@ -46,10 +46,10 @@ First confirm npm knows the package is linked:
 npm list -g --depth=0
 ```
 
-You should see:
+Example output:
 
 ```txt
-daraja-local@0.1.0 -> C:\alex\daraja-local
+daraja-local@1.0.0 -> C:\user\daraja-local
 ```
 
 Then confirm your npm global prefix:
@@ -58,7 +58,7 @@ Then confirm your npm global prefix:
 npm prefix -g
 ```
 
-On this machine it is currently:
+Example output:
 
 ```txt
 C:\nvm4w\nodejs

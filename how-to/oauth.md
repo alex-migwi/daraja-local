@@ -16,12 +16,16 @@ These values default to `consumer_key` and `consumer_secret` when the variables 
 
 ## Request a token
 
-Send the configured consumer key and secret with HTTP Basic authentication and include the required `grant_type` query parameter:
+### Take note
+- Credentials are not checked against Safaricom.
+- Daraja Local never calls real Safaricom APIs.
+- You need to have some value as `consumer-key` and `consumer-secret`, in the `.env` file and encode them into `Base64`so that the sandbox can crosscheck if your encoding logic works correctly by decodiing the HTTP `header: Authorization: Basic <base64-encoded-string>` and comparing the resulting values.
+- The endpoint requires a Basic Auth header so client applications exercise the same authentication flow they use with Daraja.
+
+Send the encoded consumer key and secret with HTTP Basic authentication and include the required `grant_type` query parameter:
 
 ```bash
-curl --get "http://127.0.0.1:8080/oauth/v1/generate" \
-  --data-urlencode "grant_type=client_credentials" \
-  --user "consumer_key:consumer_secret"
+curl -X GET "http://127.0.0.1:8080/oauth/v1/generate?grant_type=client_credentials" -H "Authorization: Basic Y29uc3VtZXJfa2V5OmNvbnN1bWVyX3NlY3JldA=="
 ```
 
 Expected response:
