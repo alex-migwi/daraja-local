@@ -23,7 +23,7 @@ npm prefix -g
 
 Make sure that folder is in your `PATH`.
 
-On this machine, npm reports:
+Example output:
 
 ```txt
 C:\nvm4w\nodejs
