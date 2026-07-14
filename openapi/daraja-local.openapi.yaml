@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Daraja Local API
-  version: 0.1.0
+  version: 1.0.0
   description: Unofficial local emulator for selected Safaricom Daraja API flows.
 servers:
   - url: http://127.0.0.1:8080

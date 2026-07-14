@@ -84,6 +84,6 @@ Expected response:
 ```json
 {
   "name": "daraja-local",
-  "version": "0.1.0"
+  "version": "1.0.0"
 }
 ```

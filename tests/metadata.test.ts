@@ -23,6 +23,6 @@ describe("metadata routes", () => {
     const response = await server.app.inject({ method: "GET", url: "/version" });
 
     expect(response.statusCode).toBe(200);
-    expect(response.json()).toMatchObject({ name: "daraja-local", version: "0.1.0" });
+    expect(response.json()).toMatchObject({ name: "daraja-local", version: "1.0.0" });
   });
 });

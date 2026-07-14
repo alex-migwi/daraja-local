@@ -5,7 +5,7 @@ import { requestJson } from "./http-client.js";
 
 const program = new Command();
 
-program.name("daraja-local").description("Local Safaricom Daraja emulator").version("0.1.0");
+program.name("daraja-local").description("Local Safaricom Daraja emulator").version("1.0.0");
 
 program
   .command("start")
